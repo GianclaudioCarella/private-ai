@@ -19,6 +19,13 @@ public class Program
             options.ModelBinderProviders.Insert(0, new AuthorRoleBinderProvider());
         }).AddRazorRuntimeCompilation();
 
+        // Add configuration settings
+        builder.Configuration
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+            .AddEnvironmentVariables();
+
         //Add Semantic Kernel
         var kernelBuilder = builder.Services.AddKernel();
 
@@ -38,9 +45,9 @@ public class Program
         //Add Azure OpenAI Service
 
         builder.Services.AddAzureOpenAIChatCompletion(
-            deploymentName: "",
-            endpoint: "",
-            apiKey: "");
+            deploymentName: builder.Configuration["AZURE_OPENAI_CHAT_DEPLOYMENT"],
+            endpoint: builder.Configuration["AZURE_OPENAI_ENDPOINT"],
+            apiKey: builder.Configuration["AZURE_OPENAI_KEY"]);
 
 
         // Enable concurrent invocation of functions to get the latest news and the current time.
